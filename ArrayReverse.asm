@@ -20,7 +20,7 @@ section '.data' data readable writable
         strArraySize      db 'Size of Array A? ', 0
         strArrayOutputA   db 10, 'Array A: ', 10, 0
         strArrayOutputB   db 10, 'Array B: ', 10, 0
-        strIncorrectSize  db 'Incorrect size of array = %d', 10, 0
+        strIncorrectSize  db 'Incorrect or exceeded size of array = %d', 10, 0
         strArrayElement   db '[%d]? ', 0
         strScanInt        db '%d', 0
         strArrElemOut     db '[%d] = %d', 10, 0
@@ -83,6 +83,7 @@ ArrayInput:
 ;       Проверяем массив на отрицательный размер. Если размер массива >0,
 ;       Вызываем ввод.
 
+getArrayExit:
         push eax
         push strIncorrectSize
         call [printf]
@@ -92,6 +93,8 @@ ArrayInput:
 
 ;       Чистим регистр ecx и переносим массив А в регистр ebx.
 getArray:
+        cmp eax, 100
+        jg  getArrayExit
         xor ecx, ecx             ; ecx = 0
         mov ebx, arrayA          ; ebx = &vec
 
