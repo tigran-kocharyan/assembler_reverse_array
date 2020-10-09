@@ -1,3 +1,13 @@
+; Кочарян Тигран Самвелович БПИ199 Вариант 10
+; Разработать программу, которая вводит одномерный массив A[N],
+; формирует из элементов массива A новый массив B по правилам,
+; указанным в таблице, и выводит его. Память под массивы может
+; выделяться как статически, так и динамически по выбору разработчика.
+; Разбить решение задачи на функции следующим образом:
+;   1)Ввод и вывод массивов оформить как подпрограммы.
+;   2)Выполнение задания по варианту оформить как процедуру
+;   3)Организовать вывод как исходного, так и сформированного массивов
+; Массив B из элементов A в обратном порядке
 
 format PE console
 entry start
@@ -14,7 +24,10 @@ section '.data' data readable writable
         strArrayElement   db '[%d]? ', 0
         strScanInt        db '%d', 0
         strArrElemOut     db '[%d] = %d', 10, 0
+        strWrongInfo      db 'Symbols are unsupported', 10, 0
+        strWrongFinish    db 'To finish, press any button...', 10, 0
 
+        ;Переменные для итератора, временных объектов, длины массивов, самих массивов
         arraySize    dd 0
         i            dd ?
         tmp          dd ?
@@ -28,19 +41,20 @@ section '.data' data readable writable
 ;--------------------------------------------------------------------------
 section '.code' code readable executable
 start:
-; 1) Array A Generation and input.
+; 1) Массив A. Генерация и ввод.
         call ArrayInput
-; 2) Array B Generation.
+; 2) Массив B. Генерация.
         call GenerateArrayB
-; 3) Array A output
+; 3) Массив A. Вывод.
         push strArrayOutputA
         call [printf]
         call ArrayOutA
-; 4) Array B output
+; 4) Массив B. Вывод.
         push strArrayOutputB
         call [printf]
         call ArrayOutB
 finish:
+        ;Вызов getch и завершение процесса.
         call [getch]
         push 0
         call [ExitProcess]
@@ -58,6 +72,9 @@ ArrayInput:
         push strScanInt
         call [scanf]
         add esp, 8
+        ;Провекра данных на валидность.
+        cmp eax, 1
+        jne WrongInput
 
 ;       Сохраняем значение размера массива и вызываем ввод массива.
         mov eax, [arraySize]
@@ -95,6 +112,10 @@ getArrayLoop:
         push strScanInt
         call [scanf]
         add esp, 8
+
+        ;Провекра данных на валидность.
+        cmp eax, 1
+        jne WrongInput
 
         mov ecx, [i]
         inc ecx
@@ -200,6 +221,29 @@ putArrayLoopB:
 endOutputArrayB:
         mov esp, [tmpStack]
         ret
+
+;--------------------------------------------------------------------------
+;Если происходит ошибка, выводим информацию.
+;--------------------------------------------------------------------------
+WrongInput:
+        ;Вывод сообщения об ошибке.
+        push strWrongInfo
+        call [printf]
+        ;Очистка мусора.
+        add esp, 4
+        ;Вызов завершения работы
+        jmp Finish
+;*************************************************завершение работы программы
+Finish:
+        ;Вывод сообщения о завершении работы.
+        push strWrongFinish
+        call [printf]
+        ;Ожидание нажатия клавиши.
+        add esp, 4
+        call [getch]
+        ;Завершение процесса.
+        push 0
+        call [ExitProcess]
 
 
 ;--------------------------------------------------------------------------
